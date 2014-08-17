@@ -17,7 +17,7 @@
 	
 	<script type="text/template" id="user-list-template">
 	<a href="#/new" class="btn btn-primary">New User</a>
-	<table class="table striped">
+	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
 				<th>First Name</th>
@@ -32,23 +32,23 @@
 					<td><%= user.get('firstName') %></td>
 					<td><%= user.get('lastName') %></td>
 					<td><%= user.get('email') %></td>
-					<td><a href="#/edit/<%= user.id %>" class="btn">Edit</a></td>
+					<td><a href="#/edit/<%= user.id %>" class="btn btn-primary btn-xs">Edit</a></td>
 				</tr>
 			<% }); %>
 				
 	</script>
 	
 	<script type="text/template" id="edit-user-template">
-		<form class="edit-user-form">
+		<form name="editForm" class="edit-user-form" >
 			<legend><%= user ? 'Edit' : 'Create' %> User</legend>
 			<label>First Name:</label>
-			<input type="text" name="firstName" value="<%= user ? user.get('firstName') : '' %>" />
+			<input type="text" name="firstName" value="<%= user ? user.get('firstName') : '' %>" required/>
 			<label>Last Name:</label>
 			<input type="text" name="lastName" value="<%= user ? user.get('lastName') : '' %>" />
 			<label>Email:</label>
 			<input type="text" name="email" value="<%= user ? user.get('email') : '' %>" />
 			<hr />
-			<button type="submit" class="btn"><%= user ? 'Edit' : 'Create' %> User</button>
+			<button type="submit" class="btn">Save</button>
 			
 			<% if(user) { %>
 				<input type="hidden" name="id" value="<%= user.get('id') %>" />
@@ -59,6 +59,15 @@
 	</script>
 	
 	<script>
+		
+		function validateEmail(email) {
+			var atpos = email.indexOf("@");
+			var dotpos = email.lastIndexOf(".");
+			if(atpos<1||dotpos<atpos+2||dotpos+2>=email.length) {
+				alert("Not a valid e-mail address");
+				return false;
+			};
+		}
 		
 		$.ajaxPrefilter( function(options, originalOptions, jqXHR) {
 			options.url = 'http://secure-wildwood-3860.herokuapp.com' + options.url;
@@ -120,12 +129,18 @@
 					this.$el.html(template);
 				}
 			},
+			
 			events: {
 				'submit .edit-user-form': 'saveUser',
-				'click .delete': 'deleteUser'
+				'click .delete': 'deleteUser',
+				'click .quick-delete': 'quickDelete'
 			},
+			
 			saveUser: function(ev) {
 				var userInfo = $(ev.currentTarget).serializeObject();
+				if(!validateEmail(userInfo.email)) {
+					return false;
+				}
 				var user = new User();
 				user.save(userInfo, {
 					success: function(user) {
@@ -136,6 +151,7 @@
 				console.log(userInfo);
 				return false;
 			},
+			
 			deleteUser: function(ev) {
 				this.user.destroy({
 					success: function() {
@@ -143,6 +159,11 @@
 					}
 				});
 				return false;
+			},
+			
+			quickDelete: function(ev) {
+				console.log(ev);
+				console.log(this);
 			}
 		});
 		
