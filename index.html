@@ -72,7 +72,7 @@
 		}
 		
 		$.ajaxPrefilter( function(options, originalOptions, jqXHR) {
-			options.url = 'http://secure-wildwood-3860.herokuapp.com' + options.url;
+			options.url = 'https://makakoa-user-manager-server.herokuapp.com/' + options.url;
 		})
 		
 		$.fn.serializeObject = function() {
